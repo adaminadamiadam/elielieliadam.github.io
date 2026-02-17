@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>ELİELİELİADAM MAX KAOS</title>
+<style>
+body{
+    background:black;
+    color:lime;
+    text-align:center;
+    font-family:Verdana;
+    margin-top:100px;
+    transition:background 0.05s;
+}
+button{
+    padding:20px;
+    font-size:22px;
+    background:darkred;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>ELİELİELİADAM MAXIMUM ŞALGAM</h1>
+<button onclick="baslat()">KAOSU BAŞLAT (RİSKLİ)</button>
+
+<script>
+let pencereler = [];
+let audioCtx;
+let interval;
+
+function randomRenk(){
+    return "#" + Math.floor(Math.random()*16777215).toString(16);
+}
+
+function beep(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let osc = audioCtx.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.value = Math.random()*1500+300;
+    osc.connect(audioCtx.destination);
+    osc.start();
+    setTimeout(()=>osc.stop(), 50);
+}
+
+function yeniPencere(hiz){
+    let w = window.open("", "", "width=220,height=220");
+    if(!w) return;
+
+    w.document.write(`
+    <body style="margin:0;background:black;display:flex;align-items:center;justify-content:center;">
+    <h2 style="color:red;">HACININ ŞALGAMI</h2>
+    </body>
+    `);
+
+    pencereler.push({
+        win:w,
+        x:Math.random()*500,
+        y:Math.random()*300,
+        dx:(Math.random()*hiz)+20,
+        dy:(Math.random()*hiz)+20
+    });
+}
+
+function baslat(){
+
+    for(let i=0;i<6;i++){
+        yeniPencere(40);
+    }
+
+    interval = setInterval(hareket, 10); // ÇOK HIZLI
+}
+
+function hareket(){
+
+    document.body.style.background = randomRenk();
+
+    pencereler.forEach(p=>{
+        p.x += p.dx;
+        p.y += p.dy;
+
+        let carpti = false;
+
+        if(p.x <=0 || p.x >= screen.availWidth-220){
+            p.dx *= -1.2; // hız artar
+            carpti = true;
+        }
+
+        if(p.y <=0 || p.y >= screen.availHeight-220){
+            p.dy *= -1.2;
+            carpti = true;
+        }
+
+        if(carpti){
+            beep();
+            if(pencereler.length < 30){ // patlamasın diye limit koyduk 😭
+                yeniPencere(60);
+            }
+        }
+
+        if(p.win && !p.win.closed){
+            p.win.moveTo(p.x,p.y);
+        }
+    });
+}
+</script>
+
+</body>
+</html>
